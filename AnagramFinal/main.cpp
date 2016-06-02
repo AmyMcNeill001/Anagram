@@ -25,6 +25,7 @@ public:
     string dictionaryWord;  //for storage of possible word
     vector<char> dictionaryLetters;  //for comparison with input letters
     int length; //for comparison with others
+    int binaryNumber; //tracker for number of matches
     bool allLetters; //to determine whether the word is composed of entirely inputed letters
     Storage(); //default constructor
     Storage(string compareMe); //constructor with parameter
@@ -43,6 +44,12 @@ int main()
     cin >> gotIt;
     Input myWord(gotIt);
     
+//    cout << "Inputted chars: " << endl;
+//    for ( int ii = 0; ii < 16; ii++)
+//    {
+//        cout << myWord.letters[ii];
+//    }
+    
     //open the dictionary file
     ifstream inFileStream;
     inFileStream.open(dictionaryLocation.c_str());
@@ -53,9 +60,8 @@ int main()
         Storage whileWord(currentWord);
         
         whileWord.calculator(myWord);
-        //
-        //        if (whileWord.allLetters)
-        //            cout << "This is all letters of this anagram!" << endl;
+        
+        cout << whileWord.binaryNumber << endl;
         
         if(whileWord.allLetters == true && whileWord.length > winner.length)
         {
@@ -92,14 +98,14 @@ Storage::Storage()
 }//END storage default constructor
 Storage::Storage(string compareMe)
 {
-    length = static_cast<int>(dictionaryWord.size());
     allLetters = false;
+    binaryNumber = 0;
     dictionaryWord = compareMe;
+    length = static_cast<int>(dictionaryWord.length());
+//    cout << "LENGTH IS: " << length << endl;
     for(int ii = 0; ii < this->length; ii++)
     {
-        cout << dictionaryWord.at(ii);
         dictionaryLetters.push_back(dictionaryWord[ii]);
-        cout << dictionaryLetters.at(ii);
     }
     //    for (int ii = 0; ii < dictionaryLetters.size(); ii++)
     //    {
@@ -110,33 +116,33 @@ Storage::Storage(string compareMe)
         binary[ii] = false;
     }
 }//END storage constructor with parameter
-void Storage::calculator(Input options)
+void Storage::calculator(Input myInput)
 {
-    bool flag = false; //to alert any instances of a non-existing letter in the word
-    
-    for(int ii = 0; ii < dictionaryLetters.size(); ii++)
+    cout << "Length before calculated: " << length << endl;
+    if (this->length > 16)
     {
-        bool iterationPresent = false;
-        for(int xx = 0; xx < 16; xx++)
-        {
-            if(dictionaryLetters.at(ii) == options.letters[xx])
-            {
-                if(this->binary[xx] == false)
-                    iterationPresent = true;
-                this->binary[xx] = true;
-            }
-        }
-        if(!iterationPresent)
-            flag = true;
+        cout << "Length is greater than 16!" << endl;
+        return;
     }
-    
-    if(flag)
-        allLetters = false;
     else
     {
-        allLetters = true;
+        cout << "Word being compared: " << dictionaryWord << endl;
+        for ( int ii = 0; ii < this->length; ii++)
+        {
+            for ( int xx = 0; xx < 16; xx++)
+            {
+//                cout << "ii: " << ii << "  xx:  " << xx << endl;
+                if (myInput.letters[xx] == this->dictionaryLetters.at(ii) && !(binary[xx]))
+                {
+                    binary[xx] = true;
+                    binaryNumber++;
+//                    cout << "Binary number incremented" << endl;
+                }
+            }
+        }
     }
-    
+    if( this->length == this->binaryNumber)
+        allLetters = true;
 }//END matchCalculator function
 Storage Storage::operator=(Storage rhsObj)
 {
@@ -145,15 +151,13 @@ Storage Storage::operator=(Storage rhsObj)
         this->binary[ii] = rhsObj.binary[ii];
     }
     this->dictionaryWord = rhsObj.dictionaryWord;
-    for(int ii = 0; ii < 16; ii++)
-    {
-        this->dictionaryLetters.at(ii) = rhsObj.dictionaryLetters.at(ii);
-    }
     this-> length = rhsObj.length;
     
     return *this;
     
 }//END overloaded equality operator
+
+
 
 
 
